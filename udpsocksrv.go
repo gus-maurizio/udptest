@@ -4,6 +4,7 @@ import (
         "fmt"
         "net"
         "os"
+	"time"
 )
 
 
@@ -17,6 +18,8 @@ func main() {
 	pc, err := net.ListenPacket("udp", service)
         checkError(err)
 	defer pc.Close()
+	// err = pc.SetReadDeadline(time.Time(1000000000))
+        checkError(err)
 
         bufRead  := make([]byte, 32000)
 	bufMsgs := make(net.Buffers,100)
@@ -27,7 +30,7 @@ func main() {
 		checkError(err)
 		// nummsgs,  merr := bufMsgs.Read(bufRead)	
 		// checkError(merr)
-		fmt.Fprintf(os.Stdout, "read %d bytes [%+v] in msgs from %+v\n", numbytes, bufRead[:numbytes], sendaddr)
+		fmt.Fprintf(os.Stdout, "%d read %d bytes [%+v] in msgs from %+v\n", time.Now().UnixNano(), numbytes, bufRead[:numbytes], sendaddr)
 	}
         os.Exit(0)
 }
