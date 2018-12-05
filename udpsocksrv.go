@@ -14,19 +14,20 @@ func main() {
         }
         service := os.Args[1]
 
-	conn, err := net.Dial("udp", service)
+	pc, err := net.ListenPacket("udp", service)
         checkError(err)
-	defer conn.Close()
+	defer pc.Close()
 
-        bufSend  := make(net.Buffers, 10)
-	for a := range bufSend {
-		bufSend[a] = []byte("hello")
-	}
-	for i := 1; i<=1; i++ {
-		//num, err := conn.Write(bufSend) 
-		num, err := bufSend.WriteTo(conn)	
+        bufRead  := make([]byte, 32000)
+	bufMsgs := make(net.Buffers,100)
+	for a := range bufMsgs { bufMsgs[a] = make([]byte,300)}
+
+	for {
+		numbytes, sendaddr, err := pc.ReadFrom(bufRead) 
 		checkError(err)
-		fmt.Fprintf(os.Stdout, "wrote %d bytes \n", num)
+		// nummsgs,  merr := bufMsgs.Read(bufRead)	
+		// checkError(merr)
+		fmt.Fprintf(os.Stdout, "read %d bytes [%+v] in msgs from %+v\n", numbytes, bufRead[:numbytes], sendaddr)
 	}
         os.Exit(0)
 }
